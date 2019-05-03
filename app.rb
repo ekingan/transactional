@@ -1,26 +1,47 @@
-@store = Hash.new
+@transaction = {}
 NEW_LINE = $/ + ">"
 
 def set(key, val)
-  @store[key] = val
-  print @store[key] + NEW_LINE
+  @transaction[key] = val
+  print @transaction[key] + NEW_LINE
 end
 
 def get(key)
-  print 'key not set' + NEW_LINE  unless @store[key]
-  print @store[key] + NEW_LINE
+  if @transaction[key]
+    print @transaction[key] + NEW_LINE
+  else
+    print 'key not set' + NEW_LINE
+  end
 end
 
 def delete(key)
-  puts key
-  puts @store
-  @store.delete(:key)
+  @transaction.tap{|x| x.delete(key)}
   print "Deleted #{key}" + NEW_LINE
 end
 
 def count(val)
-  count = @store.count { |_, v| v == val }
-  print count + NEW_LINE
+  count = @transaction.count { |_, v| v == val }
+  print count.to_s + NEW_LINE
+end
+
+def start
+  @store = @transaction #store the key values we already have
+  @transaction = {}
+  NEW_LINE
+end
+
+def get_transaction(key)
+  print 'key not set' + NEW_LINE  unless @transaction[key]
+  print @transaction[key] + NEW_LINE
+end
+
+def commit
+  @transaction.merge!(@store)
+  @transaction = {}
+end
+
+def rollback
+  @transaction = @store
 end
 
 print '>'
@@ -31,14 +52,20 @@ loop do
     when 'SET'
       set(key, val)
     when 'GET'
-      get(key)
+      @transaction.empty? ? get(key) : get_transaction(key)
     when 'DELETE'
       delete(key)
     when 'COUNT'
-      delete(key)
+      count(key)
     when 'BEGIN'
-      
+      start
+    when 'COMMIT'
+      commit
+    when 'ROLLBACK'
+      rollback
     when "exit"
       break
+    else 
+      "#{cmd} is not a valid command"
   end
 end
