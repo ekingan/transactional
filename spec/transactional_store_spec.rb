@@ -37,7 +37,7 @@ RSpec.describe TransactionalStore do
     end
   end
 
-  describe '#begin_store' do
+  describe '#begin_transaction' do
     it 'begins a new transaction' do
       subject.set('foo', '123')
       expect(subject.history.empty?).to be true
