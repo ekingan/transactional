@@ -4,7 +4,7 @@ RSpec.describe TransactionalStore do
   describe '#set' do
     it 'sets a key and value' do
       subject.set('foo', '123')
-      expect(subject.transaction['foo']).to eq '123'
+      expect(subject.store['foo']).to eq '123'
     end
   end
 
@@ -23,7 +23,7 @@ RSpec.describe TransactionalStore do
     it 'deletes a key value pair' do
       subject.set('foo', '123')
       subject.delete('foo')
-      expect(subject.transaction['foo']).to eq nil
+      expect(subject.store['foo']).to eq nil
     end
   end
 
@@ -37,12 +37,12 @@ RSpec.describe TransactionalStore do
     end
   end
 
-  describe '#begin_transaction' do
+  describe '#begin_store' do
     it 'begins a new transaction' do
       subject.set('foo', '123')
-      expect(subject.transaction.empty?).to be false
+      expect(subject.history.empty?).to be true
       subject.begin_transaction
-      expect(subject.transaction.empty?).to be true
+      expect(subject.history.empty?).to be false
     end
 
     it 'does not affect prior transactions' do
