@@ -25,10 +25,8 @@ class TransactionalStore
   end
 
   def begin_transaction
-    # puts "begin prending 1#{pending}"
     save unless transaction.empty? || @saved
     set_pending
-    # puts "begin pending 2#{pending}"
   end
 
   def commit_transaction
@@ -41,9 +39,10 @@ class TransactionalStore
 
   def rollback_transaction
     if pending.size == 1
-      revert_to_saved
+      revert_to_previous(transaction, store)
     else
-      get_pending
+      revert_to_previous(transaction, pending.last)
+      pending.pop
     end
   end
 
@@ -55,23 +54,15 @@ class TransactionalStore
     transaction
   end
 
-  def revert_to_saved
-    transaction.clear
-    store.each do |key, value|
-      transaction[key] = value
+  def revert_to_previous(to, from)
+    to.clear
+    from.each do |key, value|
+      to[key] = value
     end
   end
 
   def set_pending
     pending << transaction.clone
     transaction.clear
-  end
-
-  def get_pending
-    transaction.clear
-    pending.last.each do |key, value|
-      transaction[key] = value
-    end
-    pending.pop
   end
 end
