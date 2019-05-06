@@ -6,6 +6,7 @@ RSpec.describe Terminal do
       allow(subject).to receive(:gets).and_return('SET foo 123')
       allow(subject).to receive(:loop).and_yield
     end
+
     it 'returns user command as the first argument' do
       expect(subject.input[0]).to eq('SET')
     end
@@ -16,6 +17,32 @@ RSpec.describe Terminal do
 
     it 'returns value as the third argument' do
       expect(subject.input[2]).to eq('123')
+    end
+  end
+
+  describe '#run' do
+    before(:each) do
+      allow(subject).to receive(:loop).and_yield
+    end
+
+    it 'returns the value when a key is set' do
+      allow(subject).to receive(:input).and_return(['SET', 'foo', '123'])
+      expect { subject.run }.to output(">123\n>").to_stdout
+    end
+
+    it 'is case sensitive' do
+      allow(subject).to receive(:input).and_return('set')
+      expect { subject.run }.to output(">set is not a valid command\n>").to_stdout
+    end
+
+    it 'returns a message when a key is not set in the store' do
+      allow(subject).to receive(:input).and_return(['DELETE', 'foo'])
+      expect { subject.run }.to output(">key not found\n>").to_stdout
+    end
+
+    it 'does not accept multiline input' do
+      allow(subject).to receive(:input).and_return(["SET\n", 'foo', '123'])
+      expect { subject.run }.to output(">SET\n is not a valid command\n>").to_stdout
     end
   end
 end

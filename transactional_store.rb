@@ -15,6 +15,8 @@ class TransactionalStore
   end
 
   def delete(key)
+    return 'key not found' unless store.has_key?(key)
+
     store.delete(key)
   end
 
@@ -28,6 +30,7 @@ class TransactionalStore
 
   def commit_transaction
     return 'no transaction' if history.empty?
+
     history.pop
   end
 

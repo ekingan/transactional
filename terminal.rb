@@ -17,7 +17,7 @@ class Terminal < TransactionalStore
       when 'GET'
         print get(key)
       when 'DELETE'
-        delete(key)
+        print delete(key)
       when 'COUNT'
         print count(key)
       when 'BEGIN'
