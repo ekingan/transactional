@@ -25,24 +25,24 @@ RSpec.describe Terminal do
       allow(subject).to receive(:loop).and_yield
     end
 
-    it 'returns the value when a key is set' do
-      allow(subject).to receive(:input).and_return(['SET', 'foo', '123'])
+    it 'returns the value when a key/value pair is set' do
+      allow(subject).to receive(:input).and_return(%w[SET foo 123])
       expect { subject.run }.to output(">123\n>").to_stdout
     end
 
-    it 'is case sensitive' do
+    it 'is case sensitive and requires commands be in all caps' do
       allow(subject).to receive(:input).and_return('set')
       expect { subject.run }.to output(">set is not a valid command\n>").to_stdout
     end
 
-    it 'returns a message when a key is not set in the store' do
-      allow(subject).to receive(:input).and_return(['DELETE', 'foo'])
+    it 'returns an error message when asked to delete a key not in the store' do
+      allow(subject).to receive(:input).and_return(%w[DELETE foo])
       expect { subject.run }.to output(">key not found\n>").to_stdout
     end
 
-    it 'does not accept multiline input' do
-      allow(subject).to receive(:input).and_return(["SET\n", 'foo', '123'])
-      expect { subject.run }.to output(">SET\n is not a valid command\n>").to_stdout
+    it 'does not accept multi-line input' do
+      allow(subject).to receive(:input).and_return(%w[SET\n foo 123])
+      expect { subject.run }.to output(">SET\\n is not a valid command\n>").to_stdout
     end
   end
 end
