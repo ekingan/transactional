@@ -110,6 +110,15 @@ RSpec.describe TransactionalStore do
       subject.rollback_transaction
       expect(subject.get('foo')).to eq '123'
     end
+
+    it 'does not affect items already set' do
+      subject.set('a', 'apple')
+      subject.begin_transaction
+      subject.set('b', 'baloon')
+      subject.rollback_transaction
+      expect(subject.get('a')).to eq 'apple'
+      expect(subject.get('b')).to eq 'key not set'
+    end
   end
 end
 
