@@ -2,7 +2,7 @@ require_relative '../transactional_store.rb'
 
 RSpec.describe TransactionalStore do
   describe '#set' do
-    it 'sets a key and value' do
+    it 'sets a key and value in the store' do
       subject.set('foo', '123')
       expect(subject.store['foo']).to eq '123'
     end
@@ -28,10 +28,19 @@ RSpec.describe TransactionalStore do
   end
 
   describe '#count' do
-    it 'deletes a key value pair' do
+    it 'counts how many times a value appears in the store' do
       subject.set('foo', '123')
       subject.set('bar', '123')
       subject.set('baz', '456')
+      expect(subject.count('123')).to eq 2
+      expect(subject.count('456')).to eq 1
+    end
+
+    it 'counts uncommited transactions' do
+      subject.set('foo', '123')
+      subject.set('baz', '456')
+      subject.begin_transaction
+      subject.set('bar', '123')
       expect(subject.count('123')).to eq 2
       expect(subject.count('456')).to eq 1
     end
@@ -45,7 +54,7 @@ RSpec.describe TransactionalStore do
       expect(subject.history.empty?).to be false
     end
 
-    it 'does not affect prior transactions' do
+    it 'does not affect transactions already in the store' do
       subject.set('foo', '123')
       subject.begin_transaction
       expect(subject.store['foo']).to eq '123'
@@ -63,13 +72,6 @@ RSpec.describe TransactionalStore do
     it 'provides a message if there is nothing to commit' do
       subject.begin_transaction
       expect(subject.commit_transaction).to eq 'no transaction'
-    end
-
-    it 'provides a message if the pending transaction is equal to the store' do
-      subject.set('foo', '123')
-      subject.begin_transaction
-      subject.set('foo', '123')
-      
     end
   end
 
