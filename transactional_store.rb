@@ -37,9 +37,7 @@ class TransactionalStore
   def rollback_transaction
     store.clear
     unless history.empty?
-      history.last.each do |key, value|
-        store[key] = value
-      end
+      self.store = history.last
     end
     history.pop
   end
